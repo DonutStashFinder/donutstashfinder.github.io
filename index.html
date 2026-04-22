@@ -1,1 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeff Mod — Meteor Stashhunting Addon</title>
+  <meta name="description" content="A polished landing page for Jeff Mod, the Meteor stashhunting addon for Minecraft 1.21.x." />
+  <style>
+    :root {
+      --bg: #070b12;
+      --bg-2: #0d1420;
+      --panel: rgba(16, 24, 40, 0.78);
+      --panel-2: rgba(9, 15, 26, 0.92);
+      --border: rgba(120, 173, 255, 0.18);
+      --text: #eef4ff;
+      --muted: #97a5c2;
+      --blue: #5da8ff;
+      --blue-2: #90c5ff;
+      --cyan: #73f0ff;
+      --green: #7bffb2;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --max: 1180px;
+    }
 
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(93,168,255,0.22), transparent 30%),
+        radial-gradient(circle at 85% 10%, rgba(115,240,255,0.16), transparent 25%),
+        linear-gradient(180deg, #08101b 0%, #070b12 45%, #05080e 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 90%);
+      opacity: 0.35;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .nav-wrap {
+      position: sticky;
+      top: 14px;
+      z-index: 30;
+      padding-top: 14px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      background: rgba(7, 12, 22, 0.72);
+      backdrop-filter: blur(16px);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(93,168,255,0.24), rgba(115,240,255,0.12));
+      border: 1px solid rgba(144, 197, 255, 0.3);
+      box-shadow: inset 0 0 25px rgba(115, 240, 255, 0.12), 0 10px 30px rgba(0, 0, 0, 0.3);
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .nav-links a {
+      padding: 10px 14px;
+      border-radius: 999px;
+      transition: 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #05101b;
+      font-weight: 800;
+      box-shadow: 0 10px 40px rgba(93,168,255,0.3);
+    }
+
+    .hero {
+      padding: 68px 0 38px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .hero-copy,
+    .hero-card,
+    .section-panel,
+    .feature-card,
+    .install-card,
+    .faq-card,
+    .downloads-panel {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      border-radius: var(--radius-xl);
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -80px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(115,240,255,0.18), transparent 65%);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(144, 197, 255, 0.18);
+      background: rgba(255,255,255,0.03);
+      color: var(--blue-2);
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.5rem, 5vw, 4.9rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .gradient {
+      background: linear-gradient(135deg, #ffffff 0%, var(--blue-2) 45%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin: 18px 0 0;
+      max-width: 58ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 20px;
+      border-radius: 16px;
+      font-weight: 800;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: #05101b;
+      box-shadow: 0 16px 35px rgba(93,168,255,0.28);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 6px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .hero-card {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      background: linear-gradient(180deg, rgba(14,21,35,0.88), rgba(8,13,22,0.94));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(93,168,255,0.14), transparent 30%);
+      pointer-events: none;
+    }
+
+    .preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .preview-title {
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .live-dot::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 20px rgba(123,255,178,0.7);
+    }
+
+    .module-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .module {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 15px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .module h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+    }
+
+    .module p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .tag {
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+      background: rgba(93,168,255,0.13);
+      color: var(--blue-2);
+      border: 1px solid rgba(93,168,255,0.22);
+    }
+
+    section {
+      padding: 18px 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .section-header p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 58ch;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      border-radius: 22px;
+      padding: 22px;
+      background: linear-gradient(180deg, rgba(16,24,38,0.88), rgba(10,16,26,0.96));
+    }
+
+    .feature-icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(93,168,255,0.18), rgba(115,240,255,0.12));
+      border: 1px solid rgba(144,197,255,0.22);
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 8px;
+      font-size: 1.12rem;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.96rem;
+    }
+
+    .install-grid,
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .install-card,
+    .faq-card,
+    .downloads-panel {
+      border-radius: 24px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(15,23,36,0.9), rgba(8,14,24,0.98));
+    }
+
+    .step-number {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      background: rgba(93,168,255,0.13);
+      color: var(--blue-2);
+      border: 1px solid rgba(93,168,255,0.22);
+      margin-bottom: 16px;
+    }
+
+    .install-card h3,
+    .faq-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+    }
+
+    .install-card p,
+    .faq-card p,
+    .downloads-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .mini-note {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #bfd8ff;
+      font-size: 0.92rem;
+    }
+
+    .downloads-panel {
+      margin: 26px 0 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .downloads-panel::before {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(93,168,255,0.18), transparent 65%);
+      pointer-events: none;
+    }
+
+    .download-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .download-card {
+      border-radius: 22px;
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .download-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .pill {
+      padding: 8px 11px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(123,255,178,0.1);
+      color: var(--green);
+      border: 1px solid rgba(123,255,178,0.18);
+    }
+
+    .download-card h3 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .download-meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .download-btn {
+      margin-top: auto;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 15px 18px;
+      border-radius: 16px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6fb6ff, #77f1ff);
+      color: #04101a;
+      box-shadow: 0 14px 30px rgba(93,168,255,0.22);
+    }
+
+    footer {
+      padding: 0 0 38px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .feature-grid,
+      .install-grid,
+      .faq-grid,
+      .download-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-copy,
+      .hero-card,
+      .feature-card,
+      .install-card,
+      .faq-card,
+      .downloads-panel {
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      h1 { font-size: 2.45rem; }
+      .nav-cta { display: none; }
+      .container { width: min(calc(100% - 20px), var(--max)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container nav-wrap">
+    <nav>
+      <div class="brand">
+        <div class="brand-mark">⛏</div>
+        <div>
+          <div>Jeff Mod</div>
+          <div style="font-size:0.82rem;color:var(--muted);font-weight:600;">Meteor Stashhunting Addon</div>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="#faq">FAQ</a>
+        <a href="#downloads">Downloads</a>
+      </div>
+
+      <a class="nav-cta" href="#downloads">Get the addon</a>
+    </nav>
+  </div>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="badge">Built for Meteor • Stashhunting focused • Minecraft 1.21.x</div>
+        <h1><span class="gradient">Find more.</span><br>Move smarter.<br>Search harder.</h1>
+        <p>
+          Jeff Mod is a Meteor addon built for players who want better trail tools, smarter stash detection,
+          cleaner exploration routes, and faster information while moving through the world. It blends practical
+          utility, automation, and webhook-based notifications into one polished addon.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#downloads">Download now</a>
+          <a class="btn btn-secondary" href="#install">How to install</a>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong>15+</strong>
+            <span>Utility modules and tools</span>
+          </div>
+          <div class="stat">
+            <strong>1.21.1–1.21.11</strong>
+            <span>Version support across recent builds</span>
+          </div>
+          <div class="stat">
+            <strong>Webhook ready</strong>
+            <span>Discord alerts for key events and findings</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="preview-head">
+          <div>
+            <div class="preview-title">Feature snapshot</div>
+            <div style="color:var(--muted);font-size:0.92rem;margin-top:6px;">A quick look at what makes Jeff Mod stand out</div>
+          </div>
+          <div class="live-dot">Active toolkit</div>
+        </div>
+
+        <div class="module-list">
+          <div class="module">
+            <div>
+              <h3>BetterStashFinder</h3>
+              <p>Filters unloaded chunks, supports Xaero markers, and can push stash hits to Discord webhooks.</p>
+            </div>
+            <div class="tag">Detection</div>
+          </div>
+
+          <div class="module">
+            <div>
+              <h3>TrailFollower + TrailMaker</h3>
+              <p>Follow trails more reliably and save plotted chunk routes while keeping your path organized.</p>
+            </div>
+            <div class="tag">Routing</div>
+          </div>
+
+          <div class="module">
+            <div>
+              <h3>ElytraFlyPlusPlus</h3>
+              <p>Includes bounce mode, obstacle passing for highways, and movement options for fast travel setups.</p>
+            </div>
+            <div class="tag">Movement</div>
+          </div>
+
+          <div class="module">
+            <div>
+              <h3>OldChunkNotifier</h3>
+              <p>Detect old chunks and send the information out automatically when something useful appears.</p>
+            </div>
+            <div class="tag">Alerts</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Why people download it</div>
+          <h2>Built to make searching, routing, and tracking feel faster.</h2>
+          <p>
+            This page focuses on the strongest parts of the addon: route assistance, stash-related utility,
+            Discord notifications, chest logging, flight helpers, and quality-of-life modules that reduce friction.
+          </p>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">🧭</div>
+          <h3>Route and trail intelligence</h3>
+          <p>TrailFollower, TrailMaker, Search Area, and GotoPosition help structure movement so long sessions feel more controlled and efficient.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Stash and chest utilities</h3>
+          <p>BetterStashFinder and ChestIndex focus on information gathering, logging finds, and exporting chest contents into readable JSON output.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">📡</div>
+          <h3>Discord webhook integration</h3>
+          <p>OldChunkNotifier and DiscordNotifs can send useful alerts outside the client so you can keep track of important events quickly.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Travel-focused movement tools</h3>
+          <p>ElytraFlyPlusPlus, AFKVanillaFly, Pitch40Util, and AutoPortal add convenience for long-distance movement and vertical control.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🗺</div>
+          <h3>Works best with popular dependencies</h3>
+          <p>Recommended alongside XaeroPlus, Xaero’s Minimap, Xaero’s World Map, and Meteor-compatible Baritone builds for the full experience.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">⚙</div>
+          <h3>Extra utility modules</h3>
+          <p>Includes AutoLogPlus, NoJumpDelay, VanityESP, GrimAirPlace, Weather, EntityList, HighlightOldLava, and more for general usability.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">Install guide</div>
+          <h2>Simple setup. Fast start.</h2>
+          <p>
+            Use the latest build for your version, place it in your mods folder, and make sure the recommended dependencies are installed.
+          </p>
+        </div>
+      </div>
+
+      <div class="install-grid">
+        <article class="install-card">
+          <div class="step-number">1</div>
+          <h3>Download the correct version</h3>
+          <p>Pick the release that matches your Minecraft setup. The addon supports multiple 1.21.x versions, so choose the build that lines up with your client.</p>
+        </article>
+
+        <article class="install-card">
+          <div class="step-number">2</div>
+          <h3>Drop the jar into your mods folder</h3>
+          <p>After downloading, move the jar file into your Minecraft <strong>mods</strong> folder so Fabric and Meteor can load it on startup.</p>
+        </article>
+
+        <article class="install-card">
+          <div class="step-number">3</div>
+          <h3>Install recommended dependencies</h3>
+          <p>For the best compatibility, use XaeroPlus, Xaero’s Minimap, Xaero’s World Map, and a Meteor-friendly Baritone build.</p>
+          <div class="mini-note">Some features may not appear if dependencies are missing.</div>
+        </article>
+
+        <article class="install-card">
+          <div class="step-number">4</div>
+          <h3>Launch and configure</h3>
+          <p>Open Meteor, enable the modules you want, and set webhook options or movement settings to fit your own workflow.</p>
+          <div class="mini-note">Avoid switching Search Area modes while it is running, since that is listed as a known crash source.</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-header">
+        <div>
+          <div class="eyebrow">FAQ</div>
+          <h2>Quick answers before you download.</h2>
+          <p>Based on the repository notes and common setup questions.</p>
+        </div>
+      </div>
+
+      <div class="faq-grid">
+        <article class="faq-card">
+          <h3>Where do I get the jar?</h3>
+          <p>Download the latest release for your version and place it in your mods folder. This page is designed to drive users to those release downloads fast.</p>
+        </article>
+
+        <article class="faq-card">
+          <h3>Why is a module missing?</h3>
+          <p>Usually because a dependency is missing. The repo recommends XaeroPlus, Xaero’s Minimap, Xaero’s World Map, and Baritone for full functionality.</p>
+        </article>
+
+        <article class="faq-card">
+          <h3>Why is Search Area moving in a straight line?</h3>
+          <p>It saves your path and can continue where you left off. To start a fresh route, change the name or use the reset option.</p>
+        </article>
+
+        <article class="faq-card">
+          <h3>What if the game crashes?</h3>
+          <p>A known crash can happen if you switch Search Area modes while using it. The README also notes potential issues when using PathSeeker alongside the addon.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="downloads">
+      <div class="downloads-panel">
+        <div class="download-header">
+          <div>
+            <div class="eyebrow">Downloads</div>
+            <h2>Choose your version.</h2>
+          </div>
+          <p>Replace the placeholder links below with your actual release URLs.</p>
+        </div>
+
+        <div class="download-grid">
+          <article class="download-card">
+            <div class="download-top">
+              <div>
+                <h3>Version 1.21.11</h3>
+                <div class="download-meta">Newest supported release. Best choice for current setups.</div>
+              </div>
+              <div class="pill">Latest</div>
+            </div>
+            <a class="download-btn" href="#">Download 1.21.11</a>
+          </article>
+
+          <article class="download-card">
+            <div class="download-top">
+              <div>
+                <h3>Version 1.21.8</h3>
+                <div class="download-meta">Solid option for users staying on an earlier 1.21.x build.</div>
+              </div>
+              <div class="pill">Stable</div>
+            </div>
+            <a class="download-btn" href="#">Download 1.21.8</a>
+          </article>
+
+          <article class="download-card">
+            <div class="download-top">
+              <div>
+                <h3>Version 1.21.1</h3>
+                <div class="download-meta">Older compatible branch for players using the early 1.214base.</div>
+              </div>
+              <div class="pill">Legacy</div>
+            </div>
+            <a class="download-btn" href="#">Download 1.21.4</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Donut Stash Finder landing page concept • Swap the placeholder download links with your release links and you are ready to ship.
+    </footer>
+  </main>
+</body>
+</html>
